@@ -1,28 +1,24 @@
-
 // eslint-disable-next-line no-undef
-const chalk = require("chalk");
-console.log(chalk.blue("Hello world!"));
-
+const http = require("http");
 // eslint-disable-next-line no-undef
-const ProgressBar = require("progress");
-
-const bar = new ProgressBar(":bar", { total: 10 });
-const timer = setInterval(() => {
-  bar.tick();
-  if (bar.complete) {
-    clearInterval(timer);
-  }
-}, 100);
-
+const express = require("express");
 // eslint-disable-next-line no-undef
-const readline = require("readline").createInterface({
-  // eslint-disable-next-line no-undef
-  input: process.stdin,
-  // eslint-disable-next-line no-undef
-  output: process.stdout
+const cors = require("cors");
+// eslint-disable-next-line no-undef
+const categoriesRouter = require("./routes/categories");
+
+const app = express();
+app.use(express.json());
+app.use(cors({origin: "http://localhost:8100"}));
+app.use("/categories", categoriesRouter);
+
+// default URL to API
+app.use("/", function(req, res) {
+  res.send("Server works :)");
 });
 
-readline.question("What's your name?", name => {
-  console.log(`Hi ${name}!`);
-  readline.close();
-});
+const server = http.createServer(app);
+const port = 3000;
+server.listen(port);
+
+console.debug("Server listening on port " + port);
