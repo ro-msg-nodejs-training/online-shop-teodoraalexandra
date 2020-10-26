@@ -2,11 +2,11 @@
   "name": "online-shop-teodoraalexandra",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
-    "debug": "node --inspect-brk index.js"
+    "start": "node app.js",
+    "debug": "node --inspect-brk app.js"
   },
   "repository": {
     "type": "git",
@@ -24,8 +24,10 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "lodash": "^4.17.20",
+    "mongodb": "^3.6.2",
     "mongoose": "^5.10.9",
-    "progress": "^2.0.3"
+    "progress": "^2.0.3",
+    "validator": "^13.1.17"
   },
   "devDependencies": {
     "eslint": "^7.11.0",
