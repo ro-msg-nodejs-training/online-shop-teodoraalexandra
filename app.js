@@ -2,7 +2,7 @@
 // eslint-disable-next-line no-undef
 const mongoose = require("mongoose");
 const mongoDB = "mongodb://localhost:27017/nodetutorial";
-mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error: "));
 

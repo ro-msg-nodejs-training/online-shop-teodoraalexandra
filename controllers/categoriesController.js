@@ -5,27 +5,60 @@ const Category = require("../models/categories");
 exports.category_list = function(req, res) {
   Category.find()
     .exec(function (err, list_categories) {
-      if (err) { return console.log(err); }
+      if (err) { res.sendStatus(404); }
       res.status(200).json(list_categories);
     });
 };
 
 // eslint-disable-next-line no-undef
 exports.category_detail = function(req, res) {
-  res.send("NOT IMPLEMENTED: Category detail: " + req.params.id);
+  // Find an object from database match by 'id'
+  Category.find({ "id" : req.params.id }, function (err, category) {
+    // If object found return an object else return 404 not-found
+    if (err) { res.sendStatus(404); }
+    res.status(200).json(category);
+  });
 };
 
 // eslint-disable-next-line no-undef
 exports.category_create = function(req, res) {
-  res.send("NOT IMPLEMENTED: Category create");
+  // Create an object of new Item
+  let newCategory = {
+    id: req.body.id,
+    name: req.body.name,
+    description: req.body.description,
+  };
+
+  // Push new item object to database
+  Category.create(newCategory, function (err, newItem) {
+    if (err) { res.sendStatus(404); }
+    // Return with status 201 - created
+    res.status(201).json(newItem);
+  });
 };
 
 // eslint-disable-next-line no-undef
 exports.category_update = function(req, res) {
-  res.send("NOT IMPLEMENTED: Category update");
+  let updated = {
+    id: req.params.id,
+    name: req.body.name,
+    description: req.body.description,
+  };
+  // Get item object match by `id`
+  Category.findOneAndUpdate({ "id" : req.params.id }, updated,function (err) {
+    // If object found return an object else return 404 not-found
+    if (err) { res.sendStatus(404); }
+
+    res.status(201).json(updated);
+  });
 };
 
 // eslint-disable-next-line no-undef
 exports.category_delete = function(req, res) {
-  res.send("NOT IMPLEMENTED: Category delete");
+  Category.deleteOne({ "id" : req.params.id }, function (err) {
+    // If object found return an object else return 404 not-found
+    if (err) { res.sendStatus(404); }
+
+    res.sendStatus(204);
+  });
 };
