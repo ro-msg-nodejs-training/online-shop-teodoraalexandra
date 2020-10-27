@@ -16,12 +16,15 @@ const cors = require("cors");
 const categoriesRouter = require("./routes/categories");
 // eslint-disable-next-line no-undef
 const productsRouter = require("./routes/products");
+// eslint-disable-next-line no-undef
+const imagesRouter = require("./routes/images");
 
 const app = express();
 app.use(express.json());
 app.use(cors({origin: "http://localhost:8100"}));
 app.use("/categories", categoriesRouter);
 app.use("/products", productsRouter);
+app.use("/images", imagesRouter);
 
 // default URL to API
 app.use("/", function(req, res) {
