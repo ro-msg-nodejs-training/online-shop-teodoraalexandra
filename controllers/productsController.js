@@ -1,3 +1,5 @@
+// eslint-disable-next-line no-undef
+const fs = require("fs");
 // eslint-disable-next-line no-undef,no-unused-vars
 const Product = require("../models/products");
 
@@ -71,8 +73,23 @@ exports.product_update = function(req, res) {
 };
 
 // eslint-disable-next-line no-undef
-exports.product_delete = function(req, res) {
-  Product.deleteOne({ "id" : req.params.id }, function (err) {
+exports.product_delete = async function(req, res) {
+  // Removing the file from tmp
+  const filter = { "id" : req.params.id };
+
+  let filename;
+  await Product.findOne(filter, function (err, product) {
+    // If object found return an object else return 404 not-found
+    if (err) { res.sendStatus(404); }
+    filename = product.imageUrl;
+  });
+
+  if(filename.length !== 0) {
+    await fs.unlinkSync("C:\\Users\\dant\\Desktop\\online-shop-teodoraalexandra\\tmp\\" + filename);
+  }
+
+  // Remove the product
+  await Product.deleteOne({ "id" : req.params.id }, function (err) {
     // If object found return an object else return 404 not-found
     if (err) { res.sendStatus(404); }
 
