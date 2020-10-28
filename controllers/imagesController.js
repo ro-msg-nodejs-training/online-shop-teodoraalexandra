@@ -80,5 +80,22 @@ exports.show_image = async function(req, res) {
 // eslint-disable-next-line no-undef
 exports.all_images = function(req, res) {
   // Get all images
-  res.send("NOT IMPLEMENTED: Get all images");
+  const tmpFolder = "C:\\Users\\dant\\Desktop\\online-shop-teodoraalexandra\\tmp\\";
+  const fileList = [];
+
+  fs.readdirSync(tmpFolder).forEach(file => {
+    const path = tmpFolder + file;
+    fileList.push(path);
+  });
+
+  fileList.forEach(function(path, index,array) {
+    const readStream = fs.createReadStream(path);
+    if (index === array.length -1) {
+      // This will wait until we know the readable stream is actually valid before piping
+      readStream.pipe(res);
+    } else {
+      // This will wait until we know the readable stream is actually valid before piping
+      readStream.pipe(res, {end: false});
+    }
+  });
 };
