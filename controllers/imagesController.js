@@ -50,9 +50,31 @@ exports.remove_image = async function(req, res) {
 };
 
 // eslint-disable-next-line no-undef
-exports.show_image = function(req, res) {
+exports.show_image = async function(req, res) {
   // Get the image using Streams
-  res.send("NOT IMPLEMENTED: Get image for product with id: ", req.params.id);
+  const filter = { "id" : req.params.id };
+
+  let filename;
+  await Product.findOne(filter, function (err, product) {
+    // If object found return an object else return 404 not-found
+    if (err) { res.sendStatus(404); }
+    filename = product.imageUrl;
+  });
+
+  const path = "C:\\Users\\dant\\Desktop\\online-shop-teodoraalexandra\\tmp\\" + filename;
+
+  const readStream = fs.createReadStream(path);
+
+  // This will wait until we know the readable stream is actually valid before piping
+  readStream.on("open", function () {
+    // This just pipes the read stream to the response object (which goes to the client)
+    readStream.pipe(res);
+  });
+
+  // This catches any errors that happen while creating the readable stream (usually invalid names)
+  readStream.on("error", function() {
+    res.sendStatus(404);
+  });
 };
 
 // eslint-disable-next-line no-undef
