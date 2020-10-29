@@ -19,6 +19,8 @@ const productsRouter = require("./routes/products");
 // eslint-disable-next-line no-undef
 const imagesRouter = require("./routes/images");
 // eslint-disable-next-line no-undef
+const ordersRouter = require("./routes/orders");
+// eslint-disable-next-line no-undef
 const busboy = require("connect-busboy");
 
 const app = express();
@@ -28,6 +30,7 @@ app.use(busboy());
 app.use("/categories", categoriesRouter);
 app.use("/products", productsRouter);
 app.use("/images", imagesRouter);
+app.use("/orders", ordersRouter);
 
 // default URL to API
 app.use("/", function(req, res) {
