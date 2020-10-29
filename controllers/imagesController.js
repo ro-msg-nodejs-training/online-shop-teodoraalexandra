@@ -2,6 +2,8 @@
 const fs = require("fs");
 // eslint-disable-next-line no-undef,no-unused-vars
 const Product = require("../models/products");
+// eslint-disable-next-line no-undef
+const MultiStream = require("multistream");
 
 // eslint-disable-next-line no-undef
 exports.upload_image = function(req, res) {
@@ -81,21 +83,14 @@ exports.show_image = async function(req, res) {
 exports.all_images = function(req, res) {
   // Get all images
   const tmpFolder = "C:\\Users\\dant\\Desktop\\online-shop-teodoraalexandra\\tmp\\";
-  const fileList = [];
+  const stream = [];
 
   fs.readdirSync(tmpFolder).forEach(file => {
     const path = tmpFolder + file;
-    fileList.push(path);
+    console.log(path);
+    stream.push(fs.createReadStream(path));
   });
 
-  fileList.forEach(function(path, index,array) {
-    const readStream = fs.createReadStream(path);
-    if (index === array.length -1) {
-      // This will wait until we know the readable stream is actually valid before piping
-      readStream.pipe(res);
-    } else {
-      // This will wait until we know the readable stream is actually valid before piping
-      readStream.pipe(res, {end: false});
-    }
-  });
+  // eslint-disable-next-line no-undef
+  new MultiStream(stream).pipe(res);
 };
