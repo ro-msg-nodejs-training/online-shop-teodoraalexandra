@@ -2,6 +2,8 @@
 const Orders = require("../models/orders");
 // eslint-disable-next-line no-undef
 const OrderDetails = require("../models/orderDetails");
+// eslint-disable-next-line no-undef
+const Stocks = require("../models/stocks");
 
 // eslint-disable-next-line no-undef
 exports.orders_list = function(req, res) {
@@ -39,32 +41,41 @@ exports.order_create = async function(req, res) {
       today = yyyy + "-" + mm + "-" + dd;
       const orderId = indexes[indexes.length - 1] + 1;
 
+      const products = req.body.products;
+      products.forEach(function (item) {
+        // Largest stock strategy
+
+        Stocks.findOne({ "product" : item.name })
+          .sort({"quantity": -1})
+          .exec(function (err, stock) {
+            if (err) { console.log(err); }
+
+            let newOrderDetails = {
+              order: orderId,
+              product: item.name,
+              quantity: item.quantity,
+              location: stock.location,
+            };
+
+            // ORDER_DETAIL
+            // order -> id of the order
+            // product -> product name, given in body
+            // quantity -> quantity, given in body
+            OrderDetails.create(newOrderDetails, function (err) {
+              if (err) { console.log(err); }
+            });
+          });
+
+        // TODO: Closest location
+      });
+
       // Create an object of new Item
       let newOrder = {
         id: orderId,
-        // Location using strategy
         shipped: "",
         createdAt: today,
         address: req.body.address,
       };
-
-      const products = req.body.products;
-      products.forEach(function (item) {
-        let newOrderDetails = {
-          order: orderId,
-          product: item.name,
-          quantity: item.quantity
-        };
-
-        // ORDER_DETAIL
-        // order -> id of the order
-        // product -> product name, given in body
-        // quantity -> quantity, given in body
-        OrderDetails.create(newOrderDetails, function (err) {
-          if (err) { console.log(err); }
-        });
-      });
-
       res.status(201).json(newOrder);
 
       /*Orders.create(newOrder, function (err, newItem) {

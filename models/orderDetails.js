@@ -8,7 +8,8 @@ const Schema = mongoose.Schema;
 let OrderDetailsSchema = new Schema({
   order: Number,
   product: String,
-  quantity: Number
+  quantity: Number,
+  location: Number
 });
 
 // Virtual for orderDetails' URL

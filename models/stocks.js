@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 let StocksSchema = new Schema({
-  product: Number,
+  product: String,
   location: Number,
   quantity: Number
 });
