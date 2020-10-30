@@ -7,7 +7,7 @@ const Schema = mongoose.Schema;
 
 let OrderDetailsSchema = new Schema({
   order: Number,
-  product: Number,
+  product: String,
   quantity: Number
 });
 

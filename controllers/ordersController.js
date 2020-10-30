@@ -1,5 +1,7 @@
-// eslint-disable-next-line no-undef,no-unused-vars
+// eslint-disable-next-line no-undef
 const Orders = require("../models/orders");
+// eslint-disable-next-line no-undef
+const OrderDetails = require("../models/orderDetails");
 
 // eslint-disable-next-line no-undef
 exports.orders_list = function(req, res) {
@@ -11,29 +13,64 @@ exports.orders_list = function(req, res) {
 };
 
 // eslint-disable-next-line no-undef
-exports.order_detail = function(req, res) {
-  // Find an object from database match by 'id'
-  Orders.find({ "id" : req.params.id }, function (err, order) {
-    // If object found return an object else return 404 not-found
-    if (err) { res.sendStatus(404); }
-    res.status(200).json(order);
-  });
-};
+exports.order_create = async function(req, res) {
+  // ORDER === CREATE
+  // id -> next()
+  // shipped -> LOCATION STRATEGY
+  // createdAt -> today
+  // address -> given in body
 
-// eslint-disable-next-line no-undef
-exports.order_create = function(req, res) {
-  // Create an object of new Item
-  let newOrder = {
-    id: 0,
-    shipped: "",
-    createdAt: "",
-    address: "",
-  };
+  // STOCK === UPDATE
+  // quantity -> quantity --
 
-  // Push new item object to database
-  Orders.create(newOrder, function (err, newItem) {
-    if (err) { res.sendStatus(404); }
-    // Return with status 201 - created
-    res.status(201).json(newItem);
-  });
+  let indexes = [];
+  Orders.find()
+    .exec(function (err, list_orders) {
+      if (err) { console.log(err); }
+      list_orders.forEach(function (item) {
+        indexes.push(item.id);
+      });
+
+      let today = new Date();
+      const dd = String(today.getDate()).padStart(2, "0");
+      const mm = String(today.getMonth() + 1).padStart(2, "0");
+      const yyyy = today.getFullYear();
+
+      today = yyyy + "-" + mm + "-" + dd;
+      const orderId = indexes[indexes.length - 1] + 1;
+
+      // Create an object of new Item
+      let newOrder = {
+        id: orderId,
+        // Location using strategy
+        shipped: "",
+        createdAt: today,
+        address: req.body.address,
+      };
+
+      const products = req.body.products;
+      products.forEach(function (item) {
+        let newOrderDetails = {
+          order: orderId,
+          product: item.name,
+          quantity: item.quantity
+        };
+
+        // ORDER_DETAIL
+        // order -> id of the order
+        // product -> product name, given in body
+        // quantity -> quantity, given in body
+        OrderDetails.create(newOrderDetails, function (err) {
+          if (err) { console.log(err); }
+        });
+      });
+
+      res.status(201).json(newOrder);
+
+      /*Orders.create(newOrder, function (err, newItem) {
+        if (err) { res.sendStatus(404); }
+        // Return with status 201 - created
+        res.status(201).json(newItem);
+      });*/
+    });
 };
