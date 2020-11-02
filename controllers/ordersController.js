@@ -4,6 +4,10 @@ const Orders = require("../models/orders");
 const OrderDetails = require("../models/orderDetails");
 // eslint-disable-next-line no-undef
 const Stocks = require("../models/stocks");
+// eslint-disable-next-line no-undef
+const Locations = require("../models/locations");
+// eslint-disable-next-line no-undef
+const axios = require("axios");
 
 // eslint-disable-next-line no-undef
 exports.orders_list = function(req, res) {
@@ -64,9 +68,91 @@ exports.order_create = async function(req, res) {
             OrderDetails.create(newOrderDetails, function (err) {
               if (err) { console.log(err); }
             });
+
+            // STOCK === UPDATE
+            // quantity -> quantity --
+            let updated = {
+              product: item.name,
+              location: stock.location,
+              quantity: stock.quantity - item.quantity,
+            };
+
+            // Get item object match by `product`
+            Stocks.findOneAndUpdate({ "product" : item.name }, updated,function (err) {
+              // If object found return an object else return 404 not-found
+              if (err) { console.log(err); }
+            });
           });
 
-        // TODO: Closest location
+        const deliveryAddress = req.body.address;
+
+        // Closest location
+        Stocks.findOne({ "product" : item.name })
+          .exec(function (err, stock) {
+            if (err) { console.log(err); }
+
+            Locations.findOne({ "id" : stock.location})
+              .exec(function (err, location) {
+                if (err) { console.log(err); }
+                let locationAddress = null;
+                if (location.address !== null) {
+                  locationAddress = location.address;
+                }
+
+                const headers = {
+                  "Authorization": "JbMAbSQGDnPgbGx0xUzxd75XOWPGNfNM"
+                };
+
+                const data = {
+                  "locations": [
+                    locationAddress,
+                    deliveryAddress
+                  ],
+                  "options": {
+                    "allToAll": true
+                  }
+                };
+
+                axios.post("http://www.mapquestapi.com/directions/v2/routematrix", data, {
+                  headers: headers
+                })
+                  .then((response) => {
+                    console.log(response);
+                  })
+                  .catch((error) => {
+                    console.log(error);
+                  });
+
+                let newOrderDetails = {
+                  order: orderId,
+                  product: item.name,
+                  quantity: item.quantity,
+                  location: stock.location,
+                };
+
+                // ORDER_DETAIL
+                // order -> id of the order
+                // product -> product name, given in body
+                // quantity -> quantity, given in body
+                OrderDetails.create(newOrderDetails, function (err) {
+                  if (err) { console.log(err); }
+                });
+
+                // STOCK === UPDATE
+                // quantity -> quantity --
+                let updated = {
+                  product: item.name,
+                  location: item.location,
+                  quantity: stock.quantity - item.quantity,
+                };
+
+                // Get item object match by `product`
+                Stocks.findOneAndUpdate({ "product" : item.name }, updated,function (err) {
+                  // If object found return an object else return 404 not-found
+                  if (err) { console.log(err); }
+                });
+              });
+          });
       });
 
       // Create an object of new Item
@@ -76,12 +162,11 @@ exports.order_create = async function(req, res) {
         createdAt: today,
         address: req.body.address,
       };
-      res.status(201).json(newOrder);
 
-      /*Orders.create(newOrder, function (err, newItem) {
+      Orders.create(newOrder, function (err, newItem) {
         if (err) { res.sendStatus(404); }
         // Return with status 201 - created
         res.status(201).json(newItem);
-      });*/
+      });
     });
 };
